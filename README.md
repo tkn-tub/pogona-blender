@@ -4,6 +4,10 @@ The Blender Add-on for creating and inspecting scenes for our MaMoKo simulator
 
 ## Installation
 
+After following the installation instructions below (respective for your use case), make sure to select the 'Objects path' in the add-on preferences!
+This path should point to the directory where all MaMoKo simulator objects are defined.
+(TODO: We need a common way of defining objects; right now such a folder does not really exist yet.)
+
 ### For Users
 
 1. Create a zip file from the `addons/mamoko/` folder.
