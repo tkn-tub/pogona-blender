@@ -9,6 +9,15 @@ mamoko.zip:
 
 .PHONY:
 .ONESHELL:
+devel-virtualenv:
+	@echo "Installing fake-bpy-module into a virtualenv for bpy code completion outside blender"
+	@echo "See https://github.com/nutti/fake-bpy-module/ for details"
+	virtualenv -p python3 venv
+	source venv/bin/activate
+	pip install fake-bpy-module-$(shell basename ${blender_latest_home_dir})  # e.g., fake-bpy-module-2.80
+
+.PHONY:
+.ONESHELL:
 install-devel:
 	@echo Found Blender directories in your home directory: ${blender_home_dirs}
 	@echo Selecting the following for installation: ${blender_latest_home_dir}
