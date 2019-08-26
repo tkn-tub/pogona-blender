@@ -3,6 +3,10 @@ from bpy.types import AddonPreferences
 from bpy.props import (
     StringProperty,
 )
+from .add_object import (
+    get_operator_for_object,
+    AddBoxObject,
+)
 
 bl_info = {
     "name": "MaMoKo Scenes Tool",
@@ -22,7 +26,7 @@ bl_info = {
 
 
 class MaMoKoPreferences(AddonPreferences):
-    bl_idname = __name__
+    bl_idname = 'mamoko.preferences'
 
     objects_path: StringProperty(
         name="Objects path",
@@ -41,13 +45,28 @@ class MaMoKoPreferences(AddonPreferences):
         layout.prop(self, "objects_path")
 
 
+classes = (
+    MaMoKoPreferences,
+    AddBoxObject,
+)
+
+
+def add_cube_object(self, context):
+    self.layout.operator(AddBoxObject.bl_idname, icon='PLUGIN')
+
+
 def register():
     print("Registered MaMoKo")
 
-    bpy.utils.register_class(MaMoKoPreferences)
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+    # Populate menu:
+    bpy.types.VIEW3D_MT_add.append(add_cube_object)
 
 
 def unregister():
-    bpy.utils.unregister_class(MaMoKoPreferences)
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
 
     print("Unregistered MaMoKo")
