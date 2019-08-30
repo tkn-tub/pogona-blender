@@ -1,17 +1,3 @@
-import bpy
-from bpy.types import AddonPreferences
-from bpy.props import (
-    StringProperty,
-)
-from .add_object import (
-    get_operator_for_object,
-    AddBoxObject,
-)
-from .export import (
-    MaMoKoExporter,
-    menu_func_export
-)
-
 bl_info = {
     "name": "MaMoKo Scenes Tool",
     "author": "Lukas Stratmann (lukas@lukas-stratmann.com)",
@@ -27,6 +13,21 @@ bl_info = {
     "support": 'COMMUNITY',
     "category": "3D View"
 }
+
+if 'bpy' in locals():
+    import importlib
+    importlib.reload(add_object)
+    importlib.reload(export)
+else:
+    from . import add_object
+    from . import export
+
+import bpy
+from bpy.types import AddonPreferences
+from bpy.props import (
+    StringProperty,
+)
+from bpy.types import Menu
 
 
 class MaMoKoPreferences(AddonPreferences):
@@ -49,33 +50,54 @@ class MaMoKoPreferences(AddonPreferences):
         layout.prop(self, "objects_path")
 
 
+class VIEW3D_MT_mesh_mamoko_add(Menu):
+    """Define the "Add MaMoKo object" menu."""
+    bl_idname = 'VIEW3D_MT_mesh_mamoko_add'
+    bl_label = "MaMoKo"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator_context = 'INVOKE_REGION_WIN'
+        layout.operator(add_object.AddCubeObject.bl_idname, icon='MESH_CUBE')
+        # layout.separator()
+
+
+def menu_func(self, context):
+    self.layout.operator_context = 'INVOKE_REGION_WIN'
+    self.layout.menu(
+        VIEW3D_MT_mesh_mamoko_add.bl_idname,
+        text=VIEW3D_MT_mesh_mamoko_add.bl_label,
+        icon='PLUGIN'
+    )
+
+
 classes = (
     MaMoKoPreferences,
-    AddBoxObject,
-    MaMoKoExporter,
+    VIEW3D_MT_mesh_mamoko_add,
+    add_object.AddCubeObject,
+    export.MaMoKoExporter,
 )
 
 
-def add_cube_object(self, context):
-    self.layout.operator(AddBoxObject.bl_idname, icon='PLUGIN')
-
-
 def register():
-    print("Registered MaMoKo")
+    print("Registering MaMoKo…")
 
     for cls in classes:
+        print(f"Registering class \"{cls}\"")
         bpy.utils.register_class(cls)
 
     # Populate menu:
-    bpy.types.VIEW3D_MT_add.append(add_cube_object)
-    bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
+    bpy.types.VIEW3D_MT_add.append(menu_func)
+    bpy.types.TOPBAR_MT_file_export.append(export.menu_func_export)
+
+    print("MaMoKo: ready")
 
 
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
-    bpy.types.VIEW3D_MT_add.remove(add_cube_object)
-    bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
+    bpy.types.VIEW3D_MT_add.remove(menu_func)
+    bpy.types.TOPBAR_MT_file_export.remove(export.menu_func_export)
 
     print("Unregistered MaMoKo")
