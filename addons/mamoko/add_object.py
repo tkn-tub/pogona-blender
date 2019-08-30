@@ -1,17 +1,13 @@
 import bpy
 from bpy.props import (
-    FloatProperty,
     EnumProperty,
+    StringProperty,
     FloatVectorProperty,
 )
 from bpy_extras.object_utils import AddObjectHelper, object_data_add
 import bmesh
 import mathutils
 import typing
-
-from .mesh_utils import (
-    add_box
-)
 
 
 def get_operator_for_object(object_definition: dict):
@@ -40,54 +36,65 @@ def get_operator_for_object(object_definition: dict):
     return MetaAddObject
 
 
+def mamoko_type_update_callback(self, context):
+    """For AddBoxObject.mamoko_type: Toggle the 'custom type' property"""
+    self.mamoko_type_custom.active = self.mamoko_type == 'CUSTOM'
+    # TODO: neither 'active' nor 'enabled' seems to work…
+
+
 class AddBoxObject(bpy.types.Operator):
-    bl_idname = 'mamoko.add_box_object'
-    bl_label = "Add Box"
+    mamoko_shape = 'cube'
+    bl_idname = f'mamoko.add_cube'
+    bl_label = "Add MaMoKo Cube Object"
     bl_options = {'REGISTER', 'UNDO'}
 
-    length: FloatProperty(
-        name="Length",
-        description="Length of the box object",
-        default=1,
+    type_items_default = (
+        ('INJECTOR', "Injector", "A generic MaMoKo injector"),
+        ('SENSOR', "Sensor", "A generic MaMoKo sensor"),
+        ('CUSTOM', "Custom", "Specify the class name yourself"),
     )
-    width: FloatProperty(
-        name="Width",
-        description="Width of the box object",
-        default=1,
+    mamoko_type: EnumProperty(
+        name="Type",
+        items=type_items_default,
+        default='CUSTOM',
+        update=mamoko_type_update_callback
     )
-    height: FloatProperty(
-        name="Height",
-        description="Height of the box object",
-        default=1
+    mamoko_type_custom: StringProperty(
+        name="Custom Type",
+        default=""
     )
 
     # generic transform props
-    align_items = (
-        ('WORLD', "World", "Align the new object to the world"),
-        ('VIEW', "View", "Align the new object to the view"),
-        ('CURSOR', "3D Cursor",
-         "Use the 3D cursor orientation for the new object")
-    )
-    align: EnumProperty(
-        name="Align",
-        items=align_items,
-        default='WORLD',
-        update=AddObjectHelper.align_update_callback,
-    )
-    location: FloatVectorProperty(
-        name="Location",
-        subtype='TRANSLATION',
-    )
-    rotation: FloatVectorProperty(
-        name="Rotation",
-        subtype='EULER',
-    )
+    # align_items = (
+    #     ('WORLD', "World", "Align the new object to the world"),
+    #     ('VIEW', "View", "Align the new object to the view"),
+    #     ('CURSOR', "3D Cursor",
+    #      "Use the 3D cursor orientation for the new object")
+    # )
+    # align: EnumProperty(
+    #     name="Align",
+    #     items=align_items,
+    #     default='WORLD',
+    #     update=AddObjectHelper.align_update_callback,
+    # )
+    # location: FloatVectorProperty(
+    #     name="Location",
+    #     subtype='TRANSLATION',
+    # )
+    # rotation: FloatVectorProperty(
+    #     name="Rotation",
+    #     subtype='EULER',
+    # )
+    # scale: FloatVectorProperty(
+    #     name="Scale",
+    #     subtype='DIRECTION'
+    # )
 
     def execute(self, context) -> typing.Set:
 
         # verts, faces = add_box(self.width, self.height, self.length)
 
-        mesh = bpy.data.meshes.new("Box")
+        mesh = bpy.data.meshes.new("MaMoKo Cube")
         bm = bmesh.new()
         verts_dict = bmesh.ops.create_cube(
             bm,
@@ -95,16 +102,17 @@ class AddBoxObject(bpy.types.Operator):
             matrix=mathutils.Matrix.Identity(4),
             calc_uvs=True
         )
-        bmesh.ops.scale(
-            bm,
-            vec=mathutils.Vector((self.length, self.width, self.height)),
-            space=mathutils.Matrix.Identity(4),
-            verts=bm.verts
-        )
 
         bm.to_mesh(mesh)
         mesh.update()
 
-        object_data_add(context, mesh, operator=self)
+        object_data_add(context, mesh, operator=None)
+        obj = bpy.context.active_object
+        obj['mamoko_type'] = (
+            self.mamoko_type
+            if self.mamoko_type != 'CUSTOM'
+            else self.mamoko_type_custom
+        )
+        obj['mamoko_shape'] = self.mamoko_shape
 
         return {'FINISHED'}

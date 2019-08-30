@@ -7,6 +7,10 @@ from .add_object import (
     get_operator_for_object,
     AddBoxObject,
 )
+from .export import (
+    MaMoKoExporter,
+    menu_func_export
+)
 
 bl_info = {
     "name": "MaMoKo Scenes Tool",
@@ -48,6 +52,7 @@ class MaMoKoPreferences(AddonPreferences):
 classes = (
     MaMoKoPreferences,
     AddBoxObject,
+    MaMoKoExporter,
 )
 
 
@@ -63,10 +68,14 @@ def register():
 
     # Populate menu:
     bpy.types.VIEW3D_MT_add.append(add_cube_object)
+    bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
 
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
+
+    bpy.types.VIEW3D_MT_add.remove(add_cube_object)
+    bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 
     print("Unregistered MaMoKo")
