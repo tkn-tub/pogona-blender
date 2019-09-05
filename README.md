@@ -24,4 +24,4 @@ There are several options.
 2. Link the `addons/mamoko/` directory of this cloned repository into a valid Blender add-ons path, e.g., `~/.config/blender/2.80/scripts/addons/` (see https://docs.blender.org/manual/en/latest/advanced/scripting/introduction.html#file-location for other operating systems).
 
 Having used either of these options, the MaMoKo add-on should now appear in the list of available Add-ons in the Blender preferences.
-After making a change, simply disable and re-enable the add-on.
+After making a change, simply disable and re-enable the add-on. (This actually only seems to work in the rarest of cases. When in doubt, restart Blender.)
