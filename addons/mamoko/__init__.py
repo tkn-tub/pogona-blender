@@ -16,11 +16,15 @@ bl_info = {
 
 if 'bpy' in locals():
     import importlib
+    importlib.reload(props)
     importlib.reload(add_object)
     importlib.reload(export)
+    importlib.reload(panel)
 else:
+    from . import props
     from . import add_object
     from . import export
+    from . import panel
 
 import bpy
 from bpy.types import AddonPreferences
@@ -40,7 +44,8 @@ class MaMoKoPreferences(AddonPreferences):
         ),
         default="",
         subtype='DIR_PATH',
-        # TODO: update function, see https://docs.blender.org/api/current/bpy.props.html
+        # TODO: update function, 
+        #   see https://docs.blender.org/api/current/bpy.props.html
         # update=my_update_func
     )
 
@@ -72,10 +77,13 @@ def menu_func(self, context):
 
 
 classes = (
+    props.MaMoKoTypeProperty,
+    props.MaMoKoRepresentationProperty,
     MaMoKoPreferences,
     VIEW3D_MT_mesh_mamoko_add,
     add_object.AddCubeObject,
     export.MaMoKoExporter,
+    panel.MaMoKoPanel,
 )
 
 
@@ -85,6 +93,8 @@ def register():
     for cls in classes:
         print(f"Registering class \"{cls}\"")
         bpy.utils.register_class(cls)
+
+    props.add_custom_properties_to_object_class()
 
     # Populate menu:
     bpy.types.VIEW3D_MT_add.append(menu_func)

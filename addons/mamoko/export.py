@@ -1,7 +1,7 @@
 import bpy
 from bpy_extras.io_utils import ExportHelper
 import yaml
-from typing import List, Dict
+from typing import Dict
 
 
 class MaMoKoExporter(bpy.types.Operator, ExportHelper):
@@ -20,20 +20,19 @@ class MaMoKoExporter(bpy.types.Operator, ExportHelper):
     )
 
     def execute(self, context):
-        data: List[Dict] = []
+        data: Dict[str, Dict] = dict()
         for obj in bpy.context.scene.objects:
             if 'mamoko_type' not in obj or 'mamoko_shape' not in obj:
                 continue
             print(f"Exporting object of type {obj['mamoko_type']}")
 
-            data.append(dict(
-                name=obj.name,
-                type=obj['mamoko_type'],
+            data[obj.name] = dict(
+                type=obj.mamoko_type.mamoko_value,
                 shape=obj['mamoko_shape'],
                 rotation=list(obj.rotation_euler),
                 translation=list(obj.location),
                 scale=list(obj.scale),
-            ))
+            )
 
         with open(self.filepath, 'w') as f:
             yaml.dump(data, stream=f, default_flow_style=False)
