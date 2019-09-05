@@ -17,11 +17,13 @@ bl_info = {
 if 'bpy' in locals():
     import importlib
     importlib.reload(props)
+    importlib.reload(ops)
     importlib.reload(add_object)
     importlib.reload(export)
     importlib.reload(panel)
 else:
     from . import props
+    from . import ops
     from . import add_object
     from . import export
     from . import panel
@@ -79,6 +81,7 @@ def menu_func(self, context):
 classes = (
     props.MaMoKoTypeProperty,
     props.MaMoKoRepresentationProperty,
+    ops.MaMoKoRepresentationUpdate,
     MaMoKoPreferences,
     VIEW3D_MT_mesh_mamoko_add,
     add_object.AddCubeObject,

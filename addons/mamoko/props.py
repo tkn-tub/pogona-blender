@@ -47,8 +47,7 @@ _shape_items_default = (
 
 
 def _representation_update_callback(self, context):
-    # TODO: call custom operator to change the shape
-    pass
+    bpy.ops.mamoko.update_representation()
 
 
 class MaMoKoRepresentationProperty(bpy.types.PropertyGroup):
