@@ -5,18 +5,29 @@ import bpy_extras
 import functools
 
 
-def _create_cube_mesh(mesh, bm):
+def _undo_unit_scale(context, bm):
+    scale = 1 / context.scene.unit_settings.scale_length
+    bmesh.ops.scale(
+        bm,
+        vec=mathutils.Vector((scale, scale, scale)),
+        space=mathutils.Matrix.Identity(4),
+        verts=bm.verts
+    )
+
+
+def _create_cube_mesh(context, mesh, bm):
     _ = bmesh.ops.create_cube(
         bm,
         size=1,
         matrix=mathutils.Matrix.Identity(4),
         calc_uvs=True
     )
+    _undo_unit_scale(context, bm)
     bm.to_mesh(mesh)
     mesh.update()
 
 
-def _create_cylinder_mesh(mesh, bm):
+def _create_cylinder_mesh(context, mesh, bm):
     _ = bmesh.ops.create_cone(
         bm,
         cap_ends=True,  # close ends
@@ -27,11 +38,12 @@ def _create_cylinder_mesh(mesh, bm):
         matrix=mathutils.Matrix.Identity(4),
         calc_uvs=True
     )
+    _undo_unit_scale(context, bm)
     bm.to_mesh(mesh)
     mesh.update()
 
 
-def _create_sphere_mesh(mesh, bm):
+def _create_sphere_mesh(context, mesh, bm):
     _ = bmesh.ops.create_uvsphere(
         bm,
         u_segments=32,
@@ -40,12 +52,13 @@ def _create_sphere_mesh(mesh, bm):
         matrix=mathutils.Matrix.Identity(4),
         calc_uvs=True
     )
+    _undo_unit_scale(context, bm)
     bm.to_mesh(mesh)
     mesh.update()
 
 
-def _create_cross_mesh(mesh, bm):
-    size = 0.5
+def _create_cross_mesh(context, mesh, bm):
+    size = 0.5 / context.scene.unit_settings.scale_length
     verts = [
         mathutils.Vector((-size, 0, 0)),
         mathutils.Vector((size, 0, 0)),
@@ -65,7 +78,7 @@ def _create_cross_mesh(mesh, bm):
 def _create_mamoko_object(self, context, create_mesh_func):
     mesh = bpy.data.meshes.new(f"MaMoKo {self.bl_label}")
     bm = bmesh.new()
-    create_mesh_func(mesh, bm)
+    create_mesh_func(context, mesh, bm)
     bpy_extras.object_utils.object_data_add(context, mesh, operator=None)
 
     # Mark this object as part of the MaMoKo scene
@@ -88,14 +101,14 @@ class MaMoKoRepresentationUpdate(bpy.types.Operator):
             mesh = bpy.data.meshes.new(obj.name)
             bm = bmesh.new()
             if obj.mamoko_shape == 'CUBE':
-                _create_cube_mesh(mesh, bm)
+                _create_cube_mesh(context, mesh, bm)
             elif obj.mamoko_shape == 'CYLINDER':
-                _create_cylinder_mesh(mesh, bm)
+                _create_cylinder_mesh(context, mesh, bm)
             elif obj.mamoko_shape == 'SPHERE':
-                _create_sphere_mesh(mesh, bm)
+                _create_sphere_mesh(context, mesh, bm)
             else:
                 # obj.mamoko_shape in ('POINT', 'NONE'):
-                _create_cross_mesh(mesh, bm)
+                _create_cross_mesh(context, mesh, bm)
             obj.data = mesh
         else:
             obj.data = obj.mamoko_representation.linked_object.data
