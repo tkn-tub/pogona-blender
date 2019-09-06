@@ -18,13 +18,11 @@ if 'bpy' in locals():
     import importlib
     importlib.reload(props)
     importlib.reload(ops)
-    importlib.reload(add_object)
     importlib.reload(export)
     importlib.reload(panel)
 else:
     from . import props
     from . import ops
-    from . import add_object
     from . import export
     from . import panel
 
@@ -64,9 +62,31 @@ class VIEW3D_MT_mesh_mamoko_add(Menu):
 
     def draw(self, context):
         layout = self.layout
-        layout.operator_context = 'INVOKE_REGION_WIN'
-        layout.operator(add_object.AddCubeObject.bl_idname, icon='MESH_CUBE')
+        layout.menu(
+            VIEW3D_MT_mesh_mamoko_add_shapes.bl_idname,
+            icon='NONE'
+        )
         # layout.separator()
+
+
+class VIEW3D_MT_mesh_mamoko_add_shapes(Menu):
+    """Shape Presets submenu"""
+    bl_idname = 'VIEW3D_MT_mesh_mamoko_add_shapes'
+    bl_label = "Shape Presets"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator_context = 'INVOKE_REGION_WIN'
+        layout.operator(ops.MaMoKoAddCube.bl_idname, icon='MESH_CUBE')
+        layout.operator(
+            ops.MaMoKoAddCylinder.bl_idname,
+            icon='MESH_CYLINDER'
+        )
+        layout.operator(
+            ops.MaMoKoAddSphere.bl_idname,
+            icon='MESH_UVSPHERE'
+        )
+        layout.operator(ops.MaMoKoAddPoint.bl_idname, icon='EMPTY_AXIS')
 
 
 def menu_func(self, context):
@@ -82,9 +102,13 @@ classes = (
     props.MaMoKoTypeProperty,
     props.MaMoKoRepresentationProperty,
     ops.MaMoKoRepresentationUpdate,
+    ops.MaMoKoAddCube,
+    ops.MaMoKoAddPoint,
+    ops.MaMoKoAddSphere,
+    ops.MaMoKoAddCylinder,
     MaMoKoPreferences,
     VIEW3D_MT_mesh_mamoko_add,
-    add_object.AddCubeObject,
+    VIEW3D_MT_mesh_mamoko_add_shapes,
     export.MaMoKoExporter,
     panel.MaMoKoPanel,
 )
