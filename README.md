@@ -25,3 +25,13 @@ There are several options.
 
 Having used either of these options, the MaMoKo add-on should now appear in the list of available Add-ons in the Blender preferences.
 After making a change, simply disable and re-enable the add-on. (This actually only seems to work in the rarest of cases. When in doubt, restart Blender.)
+
+## Basic Workflow
+
+- Open an empty scene in Blender (yes, you will likely delete the default cube just to add another cube soon after – but it'll be a special cube!)
+- Add one or more MaMoKo objects: Hit Shift+A (or click on "Add" in the 3D viewport) and select the desired object template from the "MaMoKo" submenu.
+- Select an object and adjust its properties in the properties window under the "Object" context in the "MaMoKo" panel. Don't forget to give it a recognizeable name!
+- Transform the object as desired. The location, rotation, and scale of the object will be written out to the scene.yaml later on. If the "Same as Shape" checkbox for the representation is checked, do not use edit mode for any transformations or deformations as they will be ignored.
+- (Not yet implemented) In the properties window under the "Scene" context, make any MaMoKo-Scene-related changes.
+- Click File > Export > MaMoKo Scene to save the scene.yaml.
+- (Not yet implemented) Click File > Export > MaMoKo Experiment Configuration to save the config.yaml.
