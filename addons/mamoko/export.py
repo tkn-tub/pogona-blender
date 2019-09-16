@@ -27,7 +27,9 @@ class MaMoKoExporter(bpy.types.Operator, ExportHelper):
             print(f"Exporting object of type {obj['mamoko_type']}")
 
             data[obj.name] = dict(
-                type=obj.mamoko_type.mamoko_value,
+                # type=obj.mamoko_type.mamoko_value,
+                # ^ object type should now be written to the config.yaml,
+                # not scene.yaml
                 shape=obj['mamoko_shape'],
                 rotation=list(obj.rotation_euler),
                 translation=list(obj.location),
