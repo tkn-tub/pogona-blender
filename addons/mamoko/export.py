@@ -20,21 +20,24 @@ class MaMoKoExporter(bpy.types.Operator, ExportHelper):
     )
 
     def execute(self, context):
-        data: Dict[str, Dict] = dict()
+        objects: Dict[str, Dict] = dict()
         for obj in bpy.context.scene.objects:
             if 'mamoko_type' not in obj or 'mamoko_shape' not in obj:
                 continue
             print(f"Exporting object of type {obj['mamoko_type']}")
 
-            data[obj.name] = dict(
+            objects[obj.name] = dict(
                 # type=obj.mamoko_type.mamoko_value,
                 # ^ object type should now be written to the config.yaml,
                 # not scene.yaml
-                shape=obj['mamoko_shape'],
+                shape=obj.mamoko_shape,
                 rotation=list(obj.rotation_euler),
                 translation=list(obj.location),
                 scale=list(obj.scale),
             )
+        data = dict(
+            objects=objects,
+        )
 
         with open(self.filepath, 'w') as f:
             yaml.dump(data, stream=f, default_flow_style=False)
