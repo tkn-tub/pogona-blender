@@ -64,7 +64,13 @@ class MaMoKoRepresentationProperty(bpy.types.PropertyGroup):
 
 
 def add_custom_properties_to_object_class():
-    """Make all Blender objects have these properties."""
+    """
+    Make all Blender objects have these properties.
+    Whether or not an object is treated as a MaMoKo
+    object is determined by whether it has an
+    attribute `mamoko_flag` that is set to `True`
+    (cp. class `MaMoKoPanel` in `panely.py`).
+    """
     bpy.types.Object.mamoko_type = bpy.props.PointerProperty(
         name="Type",
         type=MaMoKoTypeProperty,

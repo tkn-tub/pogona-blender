@@ -22,7 +22,6 @@ class MaMoKoPanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        scene = context.scene
         obj = context.object
 
         layout.label(text="Basic Properties")
