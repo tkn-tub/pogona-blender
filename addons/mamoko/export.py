@@ -26,13 +26,16 @@ class MaMoKoExporter(bpy.types.Operator, ExportHelper):
                 continue
             print(f"Exporting object of type {obj['mamoko_type']}")
 
+            unit_scale = context.scene.unit_settings.scale_length
+
             objects[obj.name] = dict(
                 # type=obj.mamoko_type.mamoko_value,
                 # ^ object type should now be written to the config.yaml,
                 # not scene.yaml
                 shape=obj.mamoko_shape,
                 rotation=list(obj.rotation_euler),
-                translation=list(obj.location),
+                translation=list(obj.location * unit_scale),
+                # ^ TODO: checkbox: apply unit scale
                 scale=list(obj.scale),
             )
         data = dict(
