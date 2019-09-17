@@ -2,7 +2,6 @@ import bpy
 import bmesh
 import mathutils
 import bpy_extras
-import functools
 
 
 def _undo_unit_scale(context, bm):
@@ -81,9 +80,18 @@ def _create_mamoko_object(self, context, create_mesh_func):
     create_mesh_func(context, mesh, bm)
     bpy_extras.object_utils.object_data_add(context, mesh, operator=None)
 
+    obj = context.active_object
+
     # Mark this object as part of the MaMoKo scene
     # (important for exporting and for toggling UI):
-    context.active_object['mamoko_flag'] = True
+    obj['mamoko_flag'] = True
+
+    # Apply scene unit scale to the object (not the mesh).
+    # If you're working on a millimeter scale, for example,
+    # this will scale down the 1 m objects to 1 mm in a way
+    # that preserves your ability to set the scale in meters.
+    scale = context.scene.unit_settings.scale_length
+    obj.scale = [scale, scale, scale]
 
     return {'FINISHED'}
 
@@ -96,7 +104,7 @@ class MaMoKoRepresentationUpdate(bpy.types.Operator):
     def execute(self, context):
         obj = context.active_object
 
-        if (obj.mamoko_representation.same_as_shape 
+        if (obj.mamoko_representation.same_as_shape
                 or obj.mamoko_representation.linked_object is None):
             mesh = bpy.data.meshes.new(obj.name)
             bm = bmesh.new()
