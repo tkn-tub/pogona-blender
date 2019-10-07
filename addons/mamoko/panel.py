@@ -38,9 +38,11 @@ class MaMoKoPanel(bpy.types.Panel):
         row.enabled = mamoko_type.mamoko_type_enum == 'CUSTOM'
         layout.separator()
 
-        # Shape:
+        # Shape and scale:
         row = layout.row()
         row.prop(obj, 'mamoko_shape')
+        box = layout.box()
+        box.prop(obj, 'mamoko_component_scale')
         layout.separator()
 
         # Representation (in Blender):
@@ -51,5 +53,7 @@ class MaMoKoPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(mamoko_representation, 'linked_object')
         row.enabled = not mamoko_representation.same_as_shape
+        box = layout.box()
+        box.prop(mamoko_representation, 'additional_scale')
 
 

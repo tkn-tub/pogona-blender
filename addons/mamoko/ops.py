@@ -96,8 +96,8 @@ def _create_mamoko_object(self, context, create_mesh_func):
     return {'FINISHED'}
 
 
-class MaMoKoRepresentationUpdate(bpy.types.Operator):
-    bl_idname = f'mamoko.update_representation'
+class MaMoKoRepresentationShapeUpdate(bpy.types.Operator):
+    bl_idname = 'mamoko.update_representation_shape'
     bl_label = "Update Representation"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -121,6 +121,28 @@ class MaMoKoRepresentationUpdate(bpy.types.Operator):
         else:
             obj.data = obj.mamoko_representation.linked_object.data
 
+        return {'FINISHED'}
+
+
+class MaMoKoRepresentationScaleUpdate(bpy.types.Operator):
+    """
+    Update the scale in Blender based on the MaMoKo component scale and
+    the additional visualization scale.
+    """
+    bl_idname = 'mamoko.update_representation_scale'
+    bl_label = "Update scale"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        obj = context.active_object
+        unit_scale = context.scene.unit_settings.scale_length
+        new_scale = [
+            obj.mamoko_component_scale[i]
+            * unit_scale  # component_scale is defined as LENGTH
+            * obj.mamoko_representation.additional_scale[i]  # this is not
+            for i in range(3)
+        ]
+        obj.scale = new_scale
         return {'FINISHED'}
 
 
@@ -166,7 +188,7 @@ class MaMoKoAddPoint(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        return _create_mamoko_object(self, context, _create_cross_mesh)
+        _create_mamoko_object(self, context, _create_cross_mesh)
         obj = context.active_object
         obj.mamoko_shape = 'POINT'
         return {'FINISHED'}

@@ -101,7 +101,8 @@ def menu_func(self, context):
 classes = (
     props.MaMoKoTypeProperty,
     props.MaMoKoRepresentationProperty,
-    ops.MaMoKoRepresentationUpdate,
+    ops.MaMoKoRepresentationShapeUpdate,
+    ops.MaMoKoRepresentationScaleUpdate,
     ops.MaMoKoAddCube,
     ops.MaMoKoAddPoint,
     ops.MaMoKoAddSphere,
