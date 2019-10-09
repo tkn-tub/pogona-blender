@@ -4,26 +4,37 @@ import yaml
 from typing import Dict
 
 
-def _check_object_scale(operator: bpy.types.Operator, obj: bpy.types.Object):
+def _check_object_scale(
+        operator: bpy.types.Operator,
+        obj: bpy.types.Object,
+        context: bpy.types.Context,
+) -> bool:
     epsilon = .00001
+    ok = True
+    unit_scale = context.scene.unit_settings.scale_length
+    expected = [
+        obj.mamoko_component_scale[i]
+        * unit_scale  # component_scale is defined as LENGTH
+        * obj.mamoko_representation.additional_scale[i]  # this is not
+        for i in range(3)
+    ]
     for i in range(3):
         s = obj.scale[i]
-        expected = (
-                obj.mamoko_component_scale[i]
-                * obj.mamoko_representation.additional_scale[i]
-        )
-        if not expected - epsilon < s < expected + epsilon:
+        if not expected[i] - epsilon < s < expected[i] + epsilon:
             operator.report(
-                'WARNING',
+                {'WARNING'},
                 f"The scale of component \"{obj.name}\" in Blender "
                 f"({list(obj.scale)}) deviates from the MaMoKo scale "
                 "defined via the component scale and the additional "
-                "visualization scale. "
+                "visualization scale, which should combine to "
+                f"{list(expected)}. "
                 "This can happen when you change a component's scale "
                 "in the viewport rather than via its MaMoKo "
                 "properties."
             )
+            ok = False
             break
+    return ok
 
 
 class MaMoKoExporter(bpy.types.Operator, ExportHelper):
@@ -42,7 +53,7 @@ class MaMoKoExporter(bpy.types.Operator, ExportHelper):
     )
 
     def execute(self, context):
-        objects: Dict[str, Dict] = dict()
+        components: Dict[str, Dict] = dict()
         for obj in bpy.context.scene.objects:
             if 'mamoko_type' not in obj or 'mamoko_shape' not in obj:
                 continue
@@ -50,7 +61,7 @@ class MaMoKoExporter(bpy.types.Operator, ExportHelper):
 
             unit_scale = context.scene.unit_settings.scale_length
 
-            objects[obj.name] = dict(
+            components[obj.name] = dict(
                 # type=obj.mamoko_type.mamoko_value,
                 # ^ object type should now be written to the config.yaml,
                 # not scene.yaml
@@ -67,10 +78,10 @@ class MaMoKoExporter(bpy.types.Operator, ExportHelper):
                 ),
             )
 
-            _check_object_scale(operator=self, obj=obj)
+            _check_object_scale(operator=self, obj=obj, context=context)
 
         data = dict(
-            objects=objects,
+            components=components,
         )
 
         with open(self.filepath, 'w') as f:
