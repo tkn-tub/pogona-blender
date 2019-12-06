@@ -147,6 +147,7 @@ class MaMoKoRepresentationScaleUpdate(bpy.types.Operator):
 
 
 class MaMoKoAddCube(bpy.types.Operator):
+    """A cube with origin at the center."""
     bl_idname = 'mamoko.add_cube'
     bl_label = "Cube"
     bl_options = {'REGISTER', 'UNDO'}
@@ -159,6 +160,7 @@ class MaMoKoAddCube(bpy.types.Operator):
 
 
 class MaMoKoAddCylinder(bpy.types.Operator):
+    """A cylinder with origin at the center."""
     bl_idname = 'mamoko.add_cylinder'
     bl_label = "Cylinder"
     bl_options = {'REGISTER', 'UNDO'}
@@ -171,6 +173,7 @@ class MaMoKoAddCylinder(bpy.types.Operator):
 
 
 class MaMoKoAddSphere(bpy.types.Operator):
+    """A sphere with origin at the center."""
     bl_idname = 'mamoko.add_sphere'
     bl_label = "Sphere"
     bl_options = {'REGISTER', 'UNDO'}
@@ -183,6 +186,7 @@ class MaMoKoAddSphere(bpy.types.Operator):
 
 
 class MaMoKoAddPoint(bpy.types.Operator):
+    """A simple point shape."""
     bl_idname = 'mamoko.add_point'
     bl_label = "Point"
     bl_options = {'REGISTER', 'UNDO'}
@@ -191,4 +195,30 @@ class MaMoKoAddPoint(bpy.types.Operator):
         _create_mamoko_object(self, context, _create_cross_mesh)
         obj = context.active_object
         obj.mamoko_shape = 'POINT'
+        return {'FINISHED'}
+
+
+class MaMoKoAddMoleculesVisualization(bpy.types.Operator):
+    """Periodically load molecule position CSVs for visualization"""
+    bl_idname = 'mamoko.add_moleculesvis'
+    bl_label = "Molecules Visualization"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        # Not using _create_mamoko_object,
+        # as this is just for visualization and is not supposed to be
+        # exportable to be used in the MaMoKo simulator.
+        mesh = bpy.data.meshes.new(f"MaMoKo {self.bl_label}")
+        bm = bmesh.new()
+        # Create initial placeholder mesh.
+        # The actual mesh will be vertices loaded from CSVs for every frame.
+        _create_cross_mesh(context, mesh, bm)
+        bpy_extras.object_utils.object_data_add(context, mesh, operator=None)
+
+        obj = context.active_object
+
+        # Mark this object so we can later check whether to enable
+        # relevant UI elements or not:
+        obj['mamoko_molecule_visualization_flag'] = True
+
         return {'FINISHED'}

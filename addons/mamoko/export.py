@@ -44,7 +44,7 @@ class MaMoKoExporter(bpy.types.Operator, ExportHelper):
     bl_label = "MaMoKo Scene (.scene.yaml)"
 
     # Used by ExportHelper:
-    filename_ext = '.yaml'  # TODO: .yaml files don't show up in file explorer
+    filename_ext = '.yaml'
 
     filter_glob: bpy.props.StringProperty(
         default='*.yaml',

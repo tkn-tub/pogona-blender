@@ -20,11 +20,13 @@ if 'bpy' in locals():
     importlib.reload(ops)
     importlib.reload(export)
     importlib.reload(panel)
+    importlib.reload(molecules_visualization)
 else:
     from . import props
     from . import ops
     from . import export
     from . import panel
+    from . import molecules_visualization
 
 import bpy
 from bpy.types import AddonPreferences
@@ -65,6 +67,10 @@ class VIEW3D_MT_mesh_mamoko_add(Menu):
         layout.menu(
             VIEW3D_MT_mesh_mamoko_add_shapes.bl_idname,
             icon='NONE'
+        )
+        layout.operator(
+            ops.MaMoKoAddMoleculesVisualization.bl_idname,
+            icon='PARTICLES'
         )
         # layout.separator()
 
@@ -107,6 +113,7 @@ classes = (
     ops.MaMoKoAddPoint,
     ops.MaMoKoAddSphere,
     ops.MaMoKoAddCylinder,
+    ops.MaMoKoAddMoleculesVisualization,
     MaMoKoPreferences,
     VIEW3D_MT_mesh_mamoko_add,
     VIEW3D_MT_mesh_mamoko_add_shapes,
@@ -128,6 +135,8 @@ def register():
     bpy.types.VIEW3D_MT_add.append(menu_func)
     bpy.types.TOPBAR_MT_file_export.append(export.menu_func_export)
 
+    molecules_visualization.register_handlers()
+
     print("MaMoKo: ready")
 
 
@@ -137,5 +146,7 @@ def unregister():
 
     bpy.types.VIEW3D_MT_add.remove(menu_func)
     bpy.types.TOPBAR_MT_file_export.remove(export.menu_func_export)
+
+    molecules_visualization.unregister_handlers()
 
     print("Unregistered MaMoKo")
