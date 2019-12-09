@@ -1,4 +1,6 @@
 import bpy
+import os
+from . import util
 
 
 _type_help = (
@@ -63,6 +65,46 @@ def _representation_update_shape_callback(self, context):
 
 def _representation_update_scale_callback(self, context):
     bpy.ops.mamoko.update_representation_scale()
+
+
+def _molecule_positions_path_update_callback(self, context):
+    # Adjust minimum and maximum step
+    obj = context.active_object
+    path = bpy.path.abspath(obj.mamoko_molecule_positions_path)
+    steps = []
+    try:
+        for filename in os.listdir(path):
+            m = util.MOLECULE_POSITIONS_CSV_PATTERN.match(filename)
+            if not m:
+                continue
+            steps.append(int(m.group('step')))
+        if '_RNA_UI' not in obj:
+            obj['_RNA_UI'] = dict()
+        if 'mamoko_molecule_positions_step' not in obj['_RNA_UI']:
+            obj['_RNA_UI']['mamoko_molecule_positions_step'] = dict()
+        min_steps = min(steps)
+        max_steps = max(steps)
+        obj['_RNA_UI']['mamoko_molecule_positions_step'].update(dict(
+            min=min_steps,
+            max=max_steps,
+            soft_min=min_steps,
+            soft_max=max_steps,
+        ))
+        print(f"Set minimum step for object '{obj.name}' to "
+              f"{min_steps} and the maximum to {max_steps}.")
+    except FileNotFoundError as e:
+        raise Warning("Could not find the molecule positions path of "
+                      f"object '{obj.name}'.")
+
+    # Trigger a frame change without changing the frame
+    # to update the mesh:
+    context.scene.frame_current = context.scene.frame_current
+
+
+def _molecule_positions_time_update_callback(self, context):
+    # Trigger a frame change without changing the frame
+    # to update the mesh:
+    context.scene.frame_current = context.scene.frame_current
 
 
 class MaMoKoRepresentationProperty(bpy.types.PropertyGroup):
@@ -134,4 +176,22 @@ def add_custom_properties_to_object_class():
     bpy.types.Object.mamoko_representation = bpy.props.PointerProperty(
         name="Representation",
         type=MaMoKoRepresentationProperty,
+    )
+
+    # Molecules visualization properties:
+    bpy.types.Object.mamoko_molecule_positions_path = bpy.props.StringProperty(
+        name="Molecule Positions Path",
+        description="A folder with MaMoKo simulation results in the form of "
+                    "CSV files named `positions.csv.<time step>`. "
+                    "These files should have the following columns: "
+                    "(molecule) `id`, `x`, `y`, `z`, `cell_id`, `object_id`.",
+        subtype='DIR_PATH',
+        update=_molecule_positions_path_update_callback
+    )
+    bpy.types.Object.mamoko_molecule_positions_step = bpy.props.IntProperty(
+        name="Time Step",
+        description="Time step N corresponding to the suffix of a "
+                    "`positions.csv.<N>` file.",
+        options={'ANIMATABLE'},
+        update=_molecule_positions_time_update_callback,
     )

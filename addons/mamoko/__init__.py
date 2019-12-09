@@ -119,6 +119,7 @@ classes = (
     VIEW3D_MT_mesh_mamoko_add_shapes,
     export.MaMoKoExporter,
     panel.MaMoKoPanel,
+    panel.MaMoKoMoleculesVisualizationPanel,
 )
 
 

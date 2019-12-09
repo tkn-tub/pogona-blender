@@ -57,3 +57,32 @@ class MaMoKoPanel(bpy.types.Panel):
         box.prop(mamoko_representation, 'additional_scale')
 
 
+class MaMoKoMoleculesVisualizationPanel(bpy.types.Panel):
+    """
+    Creates a panel in the object context of the properties editor,
+    but only for objects with the 'mamoko_molecule_visualization_flag'
+    set to True.
+    """
+    bl_label = "MaMoKo Molecules Visualization"
+    bl_idname = 'OBJECT_PT_mamokomoleculevispanel'
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_order = 0  # in [0, inf], lower -> higher
+    bl_context = 'object'
+
+    @classmethod
+    def poll(cls, context):
+        """If this returns True, the panel will be drawn."""
+        return (
+            context.object is not None
+            and context.object.get('mamoko_molecule_visualization_flag', False)
+        )
+
+    def draw(self, context):
+        layout = self.layout
+        obj = context.object
+
+        row = layout.row()
+        row.prop(obj, 'mamoko_molecule_positions_path')
+        row = layout.row()
+        row.prop(obj, 'mamoko_molecule_positions_step')
