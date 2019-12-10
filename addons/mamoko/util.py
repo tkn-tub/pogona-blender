@@ -13,6 +13,8 @@ def delete_mesh(mesh: bpy.types.Mesh, clear_users=True):
         )
         return False
     try:
+        if clear_users:
+            mesh.user_clear()
         bpy.data.meshes.remove(mesh)
         return True
     except Exception as e:

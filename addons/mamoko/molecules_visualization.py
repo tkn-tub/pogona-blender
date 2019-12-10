@@ -17,7 +17,7 @@ def _update_all_molecule_visualizations(scene, depsgraph):
         # TODO: this requires frame_change_post, does not work with …pre.
         #  Does this mean we're one frame off?
 
-        if not obj_eval.get('mamoko_molecule_visualization_flag', False):
+        if not obj.get('mamoko_molecule_visualization_flag', False):
             continue
         if (
                 obj_eval.mamoko_molecule_positions_step == obj_eval.get(
@@ -45,7 +45,7 @@ def _update_all_molecule_visualizations(scene, depsgraph):
         verts = []
         scale = 1 / scene.unit_settings.scale_length
         filename = bpy.path.abspath(os.path.join(
-            obj_eval.mamoko_molecule_positions_path,
+            obj.mamoko_molecule_positions_path,
             f'positions.csv.{obj_eval.mamoko_molecule_positions_step}'
         ))
         try:
@@ -74,17 +74,35 @@ def _update_all_molecule_visualizations(scene, depsgraph):
         util.delete_mesh(old_mesh)
 
         obj['_mamoko_molecule_position_previous_step'] = (
-            obj.mamoko_molecule_positions_step)
+            obj_eval.mamoko_molecule_positions_step)
         obj['_mamoko_molecule_position_force_update'] = False
+
+
+@persistent
+def _lock_ui_during_render(scene):
+    """
+    If this is omitted, Blender may segfault when rendering animations
+    with this add-on enabled.
+    As @dr.sybren on blender.chat pointed out:
+    This needs the viewport to be locked while rendering,
+    to avoid multi-threading issues.
+
+    This function is equivalent to checking Render -> Lock Interface.
+    """
+    bpy.context.scene.render.use_lock_interface = True
 
 
 def register_handlers():
     bpy.app.handlers.frame_change_post.append(
         _update_all_molecule_visualizations
     )
+    bpy.app.handlers.render_pre.append(_lock_ui_during_render)
+    # Keep in mind that render_pre is run before every frame when
+    # rendering an animation.
 
 
 def unregister_handlers():
     bpy.app.handlers.frame_change_post.remove(
         _update_all_molecule_visualizations
     )
+    bpy.app.handlers.render_pre.remove(_lock_ui_during_render)
