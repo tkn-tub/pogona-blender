@@ -5,6 +5,7 @@ blender_latest_home_dir := $(lastword ${blender_home_dirs})
 all: mamoko.zip
 
 mamoko.zip:
+	rm -rf addons/mamoko/__pycache__
 	cd addons/mamoko && zip -r ../../$@ ./
 
 .PHONY:
