@@ -12,12 +12,18 @@ This path should point to the directory where all MaMoKo simulator objects are d
 
 1. Create a zip file from the `addons/mamoko/` folder.
     An easy way to do this is simply to run `make` in this directory.
-2. Open Blender.
-3. Navigate to "Edit" > "Preferences…" > "Add-ons", then click "Install…" and select the zip file from step 1.
+2. This add-on depends on some Python packages Blender doesn't ship with by default (e.g., for saving YAML configuration files). Install these dependencies:
+    1. Find the Python binary that came bundled with your installation of Blender. If you downloaded Blender as a compressed archive, it will be in `<path to where you extracted the files>/<Blender version, e.g. '2.81'>/python/bin/python<python version>`. Let's call it simply `python` from here on. If you installed Blender using a package manager (e.g., pacman), it may suffice to install the required packages with your regular python/pip.
+    2. Run `python -m ensurepip`
+    3. `python -m pip install -r requirements.txt`
+3. Open Blender.
+4. Navigate to "Edit" > "Preferences…" > "Add-ons", then click "Install…" and select the zip file from step 1.
 
 ### For Add-on Developers
 
-There are several options.
+Install Python requirements (see step 2. in the section above).
+
+There are several options for installing the add-on:
 
 1. Define an alternative scripts path in the Blender preferences.
     1. Go to "Edit" > "Preferences…" > "File Paths" and enter the path to this directory.
