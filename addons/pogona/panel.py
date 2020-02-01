@@ -1,12 +1,12 @@
 import bpy
 
 
-class MaMoKoPanel(bpy.types.Panel):
+class PogonaPanel(bpy.types.Panel):
     """
     Creates a panel in the object context of the properties editor.
     """
-    bl_label = "MaMoKo"
-    bl_idname = 'OBJECT_PT_mamokopanel'
+    bl_label = "Pogona"
+    bl_idname = 'OBJECT_PT_pogonapanel'
     bl_space_type = 'PROPERTIES'  # or VIEW_3D?
     bl_region_type = 'WINDOW'
     bl_order = 0  # in [0, inf], lower -> higher
@@ -17,7 +17,7 @@ class MaMoKoPanel(bpy.types.Panel):
         """If this returns True, the panel will be drawn."""
         return (
             context.object is not None
-            and context.object.get('mamoko_flag', False)
+            and context.object.get('pogona_flag', False)
         )
 
     def draw(self, context):
@@ -30,41 +30,41 @@ class MaMoKoPanel(bpy.types.Panel):
         layout.separator()
 
         # Object type:
-        mamoko_type = obj.mamoko_type
+        pogona_type = obj.pogona_type
         row = layout.row()
-        row.prop(mamoko_type, 'mamoko_type_enum')
+        row.prop(pogona_type, 'pogona_type_enum')
         row = layout.row()
-        row.prop(mamoko_type, 'mamoko_type_custom')
-        row.enabled = mamoko_type.mamoko_type_enum == 'CUSTOM'
+        row.prop(pogona_type, 'pogona_type_custom')
+        row.enabled = pogona_type.pogona_type_enum == 'CUSTOM'
         layout.separator()
 
         # Shape and scale:
         row = layout.row()
-        row.prop(obj, 'mamoko_shape')
+        row.prop(obj, 'pogona_shape')
         box = layout.box()
-        box.prop(obj, 'mamoko_component_scale')
+        box.prop(obj, 'pogona_component_scale')
         layout.separator()
 
         # Representation (in Blender):
         layout.label(text="Representation (in Blender)")
-        mamoko_representation = obj.mamoko_representation
+        pogona_representation = obj.pogona_representation
         row = layout.row()
-        row.prop(mamoko_representation, 'same_as_shape')
+        row.prop(pogona_representation, 'same_as_shape')
         row = layout.row()
-        row.prop(mamoko_representation, 'linked_object')
-        row.enabled = not mamoko_representation.same_as_shape
+        row.prop(pogona_representation, 'linked_object')
+        row.enabled = not pogona_representation.same_as_shape
         box = layout.box()
-        box.prop(mamoko_representation, 'additional_scale')
+        box.prop(pogona_representation, 'additional_scale')
 
 
-class MaMoKoMoleculesVisualizationPanel(bpy.types.Panel):
+class PogonaMoleculesVisualizationPanel(bpy.types.Panel):
     """
     Creates a panel in the object context of the properties editor,
-    but only for objects with the 'mamoko_molecule_visualization_flag'
+    but only for objects with the 'pogona_molecule_visualization_flag'
     set to True.
     """
-    bl_label = "MaMoKo Molecules Visualization"
-    bl_idname = 'OBJECT_PT_mamokomoleculevispanel'
+    bl_label = "Pogona Molecules Visualization"
+    bl_idname = 'OBJECT_PT_pogonamoleculevispanel'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_order = 0  # in [0, inf], lower -> higher
@@ -75,7 +75,7 @@ class MaMoKoMoleculesVisualizationPanel(bpy.types.Panel):
         """If this returns True, the panel will be drawn."""
         return (
             context.object is not None
-            and context.object.get('mamoko_molecule_visualization_flag', False)
+            and context.object.get('pogona_molecule_visualization_flag', False)
         )
 
     def draw(self, context):
@@ -83,6 +83,6 @@ class MaMoKoMoleculesVisualizationPanel(bpy.types.Panel):
         obj = context.object
 
         row = layout.row()
-        row.prop(obj, 'mamoko_molecule_positions_path')
+        row.prop(obj, 'pogona_molecule_positions_path')
         row = layout.row()
-        row.prop(obj, 'mamoko_molecule_positions_step')
+        row.prop(obj, 'pogona_molecule_positions_step')

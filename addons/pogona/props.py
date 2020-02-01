@@ -4,53 +4,53 @@ from . import util
 
 
 _type_help = (
-    "The type of the MaMoKo object.\n"
+    "The type of the Pogona object.\n"
     "If this type is available as a class "
     "during the call to SceneManager.construct_from_config, "
     "a new instance will be constructed. "
 )
 _type_items_default = (
-    ('INJECTOR', "Injector", _type_help + "A generic MaMoKo injector"),
-    ('SENSOR', "Sensor", _type_help + "A generic MaMoKo sensor"),
+    ('INJECTOR', "Injector", _type_help + "A generic Pogona injector"),
+    ('SENSOR', "Sensor", _type_help + "A generic Pogona sensor"),
     ('CUSTOM', "Custom", _type_help + "Specify the class name yourself"),
 )
 
 
-class MaMoKoTypeProperty(bpy.types.PropertyGroup):
+class PogonaTypeProperty(bpy.types.PropertyGroup):
     """
-    A property for defining the type of a MaMoKo object.
+    A property for defining the type of a Pogona object.
 
-    For objects included in the MaMoKo simulator, this should match its class
+    For objects included in the Pogona simulator, this should match its class
     name.
     If an object is not included, a 'Custom Type' can be defined.
-    When calling `mamoko.SceneManager.construct_from_config()`,
+    When calling `pogona.SceneManager.construct_from_config()`,
     this custom type has to be present as a key in the
     `additional_component_classes` dictionary argument.
     """
 
-    mamoko_type_enum: bpy.props.EnumProperty(
+    pogona_type_enum: bpy.props.EnumProperty(
         name="Type",
         items=_type_items_default,
         default='CUSTOM',
-        # update=mamoko_type_update_callback  # args: self, context
+        # update=pogona_type_update_callback  # args: self, context
     )
 
-    mamoko_type_custom: bpy.props.StringProperty(
+    pogona_type_custom: bpy.props.StringProperty(
         name="Custom Type",
         default=""
     )
 
     @property
-    def mamoko_value(self):
+    def pogona_value(self):
         return (
-            self.mamoko_type_enum
-            if self.mamoko_type_enum != 'CUSTOM'
-            else self.mamoko_type_custom
+            self.pogona_type_enum
+            if self.pogona_type_enum != 'CUSTOM'
+            else self.pogona_type_custom
         )
 
 
 _shape_items_default = (
-    ('NONE', "NONE", "Use this for any MaMoKo Object that has a (custom) "
+    ('NONE', "NONE", "Use this for any Pogona Object that has a (custom) "
         "mesh, i.e., no sensors or injectors"),
     ('POINT', "POINT", "A single point. Useful, e.g., for a point injector"),
     ('SPHERE', "SPHERE", "A sphere of radius 0.5"),
@@ -60,17 +60,17 @@ _shape_items_default = (
 
 
 def _representation_update_shape_callback(self, context):
-    bpy.ops.mamoko.update_representation_shape()
+    bpy.ops.pogona.update_representation_shape()
 
 
 def _representation_update_scale_callback(self, context):
-    bpy.ops.mamoko.update_representation_scale()
+    bpy.ops.pogona.update_representation_scale()
 
 
 def _molecule_positions_path_update_callback(self, context):
     # Adjust minimum and maximum step
     obj = context.active_object
-    path = bpy.path.abspath(obj.mamoko_molecule_positions_path)
+    path = bpy.path.abspath(obj.pogona_molecule_positions_path)
     steps = []
     try:
         for filename in os.listdir(path):
@@ -80,11 +80,11 @@ def _molecule_positions_path_update_callback(self, context):
             steps.append(int(m.group('step')))
         if '_RNA_UI' not in obj:
             obj['_RNA_UI'] = dict()
-        if 'mamoko_molecule_positions_step' not in obj['_RNA_UI']:
-            obj['_RNA_UI']['mamoko_molecule_positions_step'] = dict()
+        if 'pogona_molecule_positions_step' not in obj['_RNA_UI']:
+            obj['_RNA_UI']['pogona_molecule_positions_step'] = dict()
         min_steps = min(steps)
         max_steps = max(steps)
-        obj['_RNA_UI']['mamoko_molecule_positions_step'].update(dict(
+        obj['_RNA_UI']['pogona_molecule_positions_step'].update(dict(
             min=min_steps,
             max=max_steps,
             soft_min=min_steps,
@@ -107,7 +107,7 @@ def _molecule_positions_time_update_callback(self, context):
     context.scene.frame_current = context.scene.frame_current
 
 
-class MaMoKoRepresentationProperty(bpy.types.PropertyGroup):
+class PogonaRepresentationProperty(bpy.types.PropertyGroup):
     """
     What shape a component is supposed to take on in Blender.
     If it is different from the component's shape (e.g., unlike a sensor
@@ -144,19 +144,19 @@ class MaMoKoRepresentationProperty(bpy.types.PropertyGroup):
 def add_custom_properties_to_object_class():
     """
     Make all Blender objects have these properties.
-    Whether or not an object is treated as a MaMoKo
+    Whether or not an object is treated as a Pogona
     object is determined by whether it has an
-    attribute `mamoko_flag` that is set to `True`
-    (cp. class `MaMoKoPanel` in `panely.py`).
+    attribute `pogona_flag` that is set to `True`
+    (cp. class `PogonaPanel` in `panely.py`).
     """
-    bpy.types.Object.mamoko_type = bpy.props.PointerProperty(
+    bpy.types.Object.pogona_type = bpy.props.PointerProperty(
         name="Type",
-        type=MaMoKoTypeProperty,
+        type=PogonaTypeProperty,
     )
-    bpy.types.Object.mamoko_component_scale = bpy.props.FloatVectorProperty(
+    bpy.types.Object.pogona_component_scale = bpy.props.FloatVectorProperty(
         name="Component Scale",
         description="The scale of the component as it will be applied in "
-                    "the MaMoKo simulator. "
+                    "the Pogona simulator. "
                     "For the built-in shapes, this will correspond to the "
                     "width, height, and depth of the component in meters.",
         default=(1, 1, 1),  # TODO: ensure this is updated when bl obj is
@@ -167,28 +167,28 @@ def add_custom_properties_to_object_class():
         unit='LENGTH',
         update=_representation_update_scale_callback,
     )
-    bpy.types.Object.mamoko_shape = bpy.props.EnumProperty(
+    bpy.types.Object.pogona_shape = bpy.props.EnumProperty(
         name="Shape",
         items=_shape_items_default,
         default='NONE',
         update=_representation_update_shape_callback  # TODO: called twice?
     )
-    bpy.types.Object.mamoko_representation = bpy.props.PointerProperty(
+    bpy.types.Object.pogona_representation = bpy.props.PointerProperty(
         name="Representation",
-        type=MaMoKoRepresentationProperty,
+        type=PogonaRepresentationProperty,
     )
 
     # Molecules visualization properties:
-    bpy.types.Object.mamoko_molecule_positions_path = bpy.props.StringProperty(
+    bpy.types.Object.pogona_molecule_positions_path = bpy.props.StringProperty(
         name="Molecule Positions Path",
-        description="A folder with MaMoKo simulation results in the form of "
+        description="A folder with Pogona simulation results in the form of "
                     "CSV files named `positions.csv.<time step>`. "
                     "These files should have the following columns: "
                     "(molecule) `id`, `x`, `y`, `z`, `cell_id`, `object_id`.",
         subtype='DIR_PATH',
         update=_molecule_positions_path_update_callback
     )
-    bpy.types.Object.mamoko_molecule_positions_step = bpy.props.IntProperty(
+    bpy.types.Object.pogona_molecule_positions_step = bpy.props.IntProperty(
         name="Time Step",
         description="Time step N corresponding to the suffix of a "
                     "`positions.csv.<N>` file.",

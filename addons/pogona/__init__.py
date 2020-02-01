@@ -1,9 +1,9 @@
 bl_info = {
-    "name": "MaMoKo Scenes Tool",
+    "name": "Pogona Scenes Tool",
     "author": "Lukas Stratmann (lukas@lukas-stratmann.com)",
     "description": (
         "Tools for creating and inspecting scenes for the "
-        "MaMoKo molecular communication simulator."
+        "Pogona molecular communication simulator."
     ),
     "version": (0, 1, 0),
     "blender": (2, 80, 0),
@@ -36,13 +36,13 @@ from bpy.props import (
 from bpy.types import Menu
 
 
-class MaMoKoPreferences(AddonPreferences):
-    bl_idname = 'mamoko.preferences'
+class PogonaPreferences(AddonPreferences):
+    bl_idname = 'pogona.preferences'
 
     objects_path: StringProperty(
         name="Objects path",
         description=(
-            "Path to your MaMoKo objects"
+            "Path to your Pogona OpenFOAM objects"
         ),
         default="",
         subtype='DIR_PATH',
@@ -53,78 +53,78 @@ class MaMoKoPreferences(AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text="MaMoKo Preferences")
+        layout.label(text="Pogona Preferences")
         layout.prop(self, "objects_path")
 
 
-class VIEW3D_MT_mesh_mamoko_add(Menu):
-    """Define the "Add MaMoKo object" menu."""
-    bl_idname = 'VIEW3D_MT_mesh_mamoko_add'
-    bl_label = "MaMoKo"
+class VIEW3D_MT_mesh_pogona_add(Menu):
+    """Define the "Add Pogona object" menu."""
+    bl_idname = 'VIEW3D_MT_mesh_pogona_add'
+    bl_label = "Pogona"
 
     def draw(self, context):
         layout = self.layout
         layout.menu(
-            VIEW3D_MT_mesh_mamoko_add_shapes.bl_idname,
+            VIEW3D_MT_mesh_pogona_add_shapes.bl_idname,
             icon='NONE'
         )
         layout.operator(
-            ops.MaMoKoAddMoleculesVisualization.bl_idname,
+            ops.PogonaAddMoleculesVisualization.bl_idname,
             icon='PARTICLES'
         )
         # layout.separator()
 
 
-class VIEW3D_MT_mesh_mamoko_add_shapes(Menu):
+class VIEW3D_MT_mesh_pogona_add_shapes(Menu):
     """Shape Presets submenu"""
-    bl_idname = 'VIEW3D_MT_mesh_mamoko_add_shapes'
+    bl_idname = 'VIEW3D_MT_mesh_pogona_add_shapes'
     bl_label = "Shape Presets"
 
     def draw(self, context):
         layout = self.layout
         layout.operator_context = 'INVOKE_REGION_WIN'
-        layout.operator(ops.MaMoKoAddCube.bl_idname, icon='MESH_CUBE')
+        layout.operator(ops.PogonaAddCube.bl_idname, icon='MESH_CUBE')
         layout.operator(
-            ops.MaMoKoAddCylinder.bl_idname,
+            ops.PogonaAddCylinder.bl_idname,
             icon='MESH_CYLINDER'
         )
         layout.operator(
-            ops.MaMoKoAddSphere.bl_idname,
+            ops.PogonaAddSphere.bl_idname,
             icon='MESH_UVSPHERE'
         )
-        layout.operator(ops.MaMoKoAddPoint.bl_idname, icon='EMPTY_AXIS')
+        layout.operator(ops.PogonaAddPoint.bl_idname, icon='EMPTY_AXIS')
 
 
 def menu_func(self, context):
     self.layout.operator_context = 'INVOKE_REGION_WIN'
     self.layout.menu(
-        VIEW3D_MT_mesh_mamoko_add.bl_idname,
-        text=VIEW3D_MT_mesh_mamoko_add.bl_label,
+        VIEW3D_MT_mesh_pogona_add.bl_idname,
+        text=VIEW3D_MT_mesh_pogona_add.bl_label,
         icon='PLUGIN'
     )
 
 
 classes = (
-    props.MaMoKoTypeProperty,
-    props.MaMoKoRepresentationProperty,
-    ops.MaMoKoRepresentationShapeUpdate,
-    ops.MaMoKoRepresentationScaleUpdate,
-    ops.MaMoKoAddCube,
-    ops.MaMoKoAddPoint,
-    ops.MaMoKoAddSphere,
-    ops.MaMoKoAddCylinder,
-    ops.MaMoKoAddMoleculesVisualization,
-    MaMoKoPreferences,
-    VIEW3D_MT_mesh_mamoko_add,
-    VIEW3D_MT_mesh_mamoko_add_shapes,
-    export.MaMoKoExporter,
-    panel.MaMoKoPanel,
-    panel.MaMoKoMoleculesVisualizationPanel,
+    props.PogonaTypeProperty,
+    props.PogonaRepresentationProperty,
+    ops.PogonaRepresentationShapeUpdate,
+    ops.PogonaRepresentationScaleUpdate,
+    ops.PogonaAddCube,
+    ops.PogonaAddPoint,
+    ops.PogonaAddSphere,
+    ops.PogonaAddCylinder,
+    ops.PogonaAddMoleculesVisualization,
+    PogonaPreferences,
+    VIEW3D_MT_mesh_pogona_add,
+    VIEW3D_MT_mesh_pogona_add_shapes,
+    export.PogonaExporter,
+    panel.PogonaPanel,
+    panel.PogonaMoleculesVisualizationPanel,
 )
 
 
 def register():
-    print("Registering MaMoKo…")
+    print("Registering Pogona…")
 
     for cls in classes:
         print(f"Registering class \"{cls}\"")
@@ -138,7 +138,7 @@ def register():
 
     molecules_visualization.register_handlers()
 
-    print("MaMoKo: ready")
+    print("Pogona: ready")
 
 
 def unregister():
@@ -150,4 +150,4 @@ def unregister():
 
     molecules_visualization.unregister_handlers()
 
-    print("Unregistered MaMoKo")
+    print("Unregistered Pogona")

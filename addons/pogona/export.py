@@ -13,9 +13,9 @@ def _check_object_scale(
     ok = True
     unit_scale = context.scene.unit_settings.scale_length
     expected = [
-        obj.mamoko_component_scale[i]
+        obj.pogona_component_scale[i]
         * unit_scale  # component_scale is defined as LENGTH
-        * obj.mamoko_representation.additional_scale[i]  # this is not
+        * obj.pogona_representation.additional_scale[i]  # this is not
         for i in range(3)
     ]
     for i in range(3):
@@ -24,12 +24,12 @@ def _check_object_scale(
             operator.report(
                 {'WARNING'},
                 f"The scale of component \"{obj.name}\" in Blender "
-                f"({list(obj.scale)}) deviates from the MaMoKo scale "
+                f"({list(obj.scale)}) deviates from the Pogona scale "
                 "defined via the component scale and the additional "
                 "visualization scale, which should combine to "
                 f"{list(expected)}. "
                 "This can happen when you change a component's scale "
-                "in the viewport rather than via its MaMoKo "
+                "in the viewport rather than via its Pogona "
                 "properties."
             )
             ok = False
@@ -37,11 +37,11 @@ def _check_object_scale(
     return ok
 
 
-class MaMoKoExporter(bpy.types.Operator, ExportHelper):
-    """Export scene for the MaMoKo simulator."""
+class PogonaExporter(bpy.types.Operator, ExportHelper):
+    """Export scene for the Pogona simulator."""
 
-    bl_idname = 'mamoko.exporter'
-    bl_label = "MaMoKo Scene (.scene.yaml)"
+    bl_idname = 'pogona.exporter'
+    bl_label = "Pogona Scene (.scene.yaml)"
 
     # Used by ExportHelper:
     filename_ext = '.yaml'
@@ -55,26 +55,26 @@ class MaMoKoExporter(bpy.types.Operator, ExportHelper):
     def execute(self, context):
         components: Dict[str, Dict] = dict()
         for obj in bpy.context.scene.objects:
-            if 'mamoko_type' not in obj or 'mamoko_shape' not in obj:
+            if 'pogona_type' not in obj or 'pogona_shape' not in obj:
                 continue
-            print(f"Exporting object of type {obj['mamoko_type']}")
+            print(f"Exporting object of type {obj['pogona_type']}")
 
             unit_scale = context.scene.unit_settings.scale_length
 
             components[obj.name] = dict(
-                # type=obj.mamoko_type.mamoko_value,
+                # type=obj.pogona_type.pogona_value,
                 # ^ object type should now be written to the config.yaml,
                 # not scene.yaml
-                shape=obj.mamoko_shape,
+                shape=obj.pogona_shape,
                 rotation=list(obj.rotation_euler),
                 translation=list(obj.location * unit_scale),
                 # ^ TODO: checkbox: apply unit scale
                 # Component scale is defined as LENGTH, apply unit scale:
-                scale=list(obj.mamoko_component_scale * unit_scale),
+                scale=list(obj.pogona_component_scale * unit_scale),
                 # Additional visualization scale not defined as LENGTH,
                 # therefore no unit scale:
                 visualization_scale=list(
-                    obj.mamoko_representation.additional_scale
+                    obj.pogona_representation.additional_scale
                 ),
             )
 
@@ -92,6 +92,6 @@ class MaMoKoExporter(bpy.types.Operator, ExportHelper):
 
 def menu_func_export(self, context):
     self.layout.operator(
-        MaMoKoExporter.bl_idname,
-        text=MaMoKoExporter.bl_label
+        PogonaExporter.bl_idname,
+        text=PogonaExporter.bl_label
     )

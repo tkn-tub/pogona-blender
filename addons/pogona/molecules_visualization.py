@@ -17,24 +17,24 @@ def _update_all_molecule_visualizations(scene, depsgraph):
         # TODO: this requires frame_change_post, does not work with …pre.
         #  Does this mean we're one frame off?
 
-        if not obj.get('mamoko_molecule_visualization_flag', False):
+        if not obj.get('pogona_molecule_visualization_flag', False):
             continue
         if (
-                obj_eval.mamoko_molecule_positions_step == obj_eval.get(
-                    '_mamoko_molecule_position_previous_step'
+                obj_eval.pogona_molecule_positions_step == obj_eval.get(
+                    '_pogona_molecule_position_previous_step'
                 )
                 and not obj_eval.get(
-                    '_mamoko_molecule_position_force_update',
+                    '_pogona_molecule_position_force_update',
                     True
                 )
         ):
             # Don't update if the object's time step hasn't changed.
             print(f"time step of {obj.name} hasn't changed; "
                   f"old: "
-                  f"{obj_eval.get('_mamoko_molecule_position_previous_step')},"
-                  f" new: {obj_eval.mamoko_molecule_positions_step}, "
+                  f"{obj_eval.get('_pogona_molecule_position_previous_step')},"
+                  f" new: {obj_eval.pogona_molecule_positions_step}, "
                   f"force update: "
-                  f"{obj_eval.get('_mamoko_molecule_position_force_update')}")
+                  f"{obj_eval.get('_pogona_molecule_position_force_update')}")
             continue
         print(
             f"Updating molecule visualizations, frame {scene.frame_current}, "
@@ -45,8 +45,8 @@ def _update_all_molecule_visualizations(scene, depsgraph):
         verts = []
         scale = 1 / scene.unit_settings.scale_length
         filename = bpy.path.abspath(os.path.join(
-            obj.mamoko_molecule_positions_path,
-            f'positions.csv.{obj_eval.mamoko_molecule_positions_step}'
+            obj.pogona_molecule_positions_path,
+            f'positions.csv.{obj_eval.pogona_molecule_positions_step}'
         ))
         try:
             with open(filename, 'r') as csv_file:
@@ -73,9 +73,9 @@ def _update_all_molecule_visualizations(scene, depsgraph):
         obj.data = mesh
         util.delete_mesh(old_mesh)
 
-        obj['_mamoko_molecule_position_previous_step'] = (
-            obj_eval.mamoko_molecule_positions_step)
-        obj['_mamoko_molecule_position_force_update'] = False
+        obj['_pogona_molecule_position_previous_step'] = (
+            obj_eval.pogona_molecule_positions_step)
+        obj['_pogona_molecule_position_force_update'] = False
 
 
 @persistent

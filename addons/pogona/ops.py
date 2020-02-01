@@ -74,17 +74,17 @@ def _create_cross_mesh(context, mesh, bm):
     mesh.from_pydata(verts, edges, [])
 
 
-def _create_mamoko_object(self, context, create_mesh_func):
-    mesh = bpy.data.meshes.new(f"MaMoKo {self.bl_label}")
+def _create_pogona_object(self, context, create_mesh_func):
+    mesh = bpy.data.meshes.new(f"Pogona {self.bl_label}")
     bm = bmesh.new()
     create_mesh_func(context, mesh, bm)
     bpy_extras.object_utils.object_data_add(context, mesh, operator=None)
 
     obj = context.active_object
 
-    # Mark this object as part of the MaMoKo scene
+    # Mark this object as part of the Pogona scene
     # (important for exporting and for toggling UI):
-    obj['mamoko_flag'] = True
+    obj['pogona_flag'] = True
 
     # Apply scene unit scale to the object (not the mesh).
     # If you're working on a millimeter scale, for example,
@@ -96,40 +96,40 @@ def _create_mamoko_object(self, context, create_mesh_func):
     return {'FINISHED'}
 
 
-class MaMoKoRepresentationShapeUpdate(bpy.types.Operator):
-    bl_idname = 'mamoko.update_representation_shape'
+class PogonaRepresentationShapeUpdate(bpy.types.Operator):
+    bl_idname = 'pogona.update_representation_shape'
     bl_label = "Update Representation"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         obj = context.active_object
 
-        if (obj.mamoko_representation.same_as_shape
-                or obj.mamoko_representation.linked_object is None):
+        if (obj.pogona_representation.same_as_shape
+                or obj.pogona_representation.linked_object is None):
             mesh = bpy.data.meshes.new(obj.name)
             bm = bmesh.new()
-            if obj.mamoko_shape == 'CUBE':
+            if obj.pogona_shape == 'CUBE':
                 _create_cube_mesh(context, mesh, bm)
-            elif obj.mamoko_shape == 'CYLINDER':
+            elif obj.pogona_shape == 'CYLINDER':
                 _create_cylinder_mesh(context, mesh, bm)
-            elif obj.mamoko_shape == 'SPHERE':
+            elif obj.pogona_shape == 'SPHERE':
                 _create_sphere_mesh(context, mesh, bm)
             else:
-                # obj.mamoko_shape in ('POINT', 'NONE'):
+                # obj.pogona_shape in ('POINT', 'NONE'):
                 _create_cross_mesh(context, mesh, bm)
             obj.data = mesh
         else:
-            obj.data = obj.mamoko_representation.linked_object.data
+            obj.data = obj.pogona_representation.linked_object.data
 
         return {'FINISHED'}
 
 
-class MaMoKoRepresentationScaleUpdate(bpy.types.Operator):
+class PogonaRepresentationScaleUpdate(bpy.types.Operator):
     """
-    Update the scale in Blender based on the MaMoKo component scale and
+    Update the scale in Blender based on the Pogona component scale and
     the additional visualization scale.
     """
-    bl_idname = 'mamoko.update_representation_scale'
+    bl_idname = 'pogona.update_representation_scale'
     bl_label = "Update scale"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -137,78 +137,78 @@ class MaMoKoRepresentationScaleUpdate(bpy.types.Operator):
         obj = context.active_object
         unit_scale = context.scene.unit_settings.scale_length
         new_scale = [
-            obj.mamoko_component_scale[i]
+            obj.pogona_component_scale[i]
             * unit_scale  # component_scale is defined as LENGTH
-            * obj.mamoko_representation.additional_scale[i]  # this is not
+            * obj.pogona_representation.additional_scale[i]  # this is not
             for i in range(3)
         ]
         obj.scale = new_scale
         return {'FINISHED'}
 
 
-class MaMoKoAddCube(bpy.types.Operator):
+class PogonaAddCube(bpy.types.Operator):
     """A cube with origin at the center."""
-    bl_idname = 'mamoko.add_cube'
+    bl_idname = 'pogona.add_cube'
     bl_label = "Cube"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        _create_mamoko_object(self, context, _create_cube_mesh)
+        _create_pogona_object(self, context, _create_cube_mesh)
         obj = context.active_object
-        obj.mamoko_shape = 'CUBE'
+        obj.pogona_shape = 'CUBE'
         return {'FINISHED'}
 
 
-class MaMoKoAddCylinder(bpy.types.Operator):
+class PogonaAddCylinder(bpy.types.Operator):
     """A cylinder with origin at the center."""
-    bl_idname = 'mamoko.add_cylinder'
+    bl_idname = 'pogona.add_cylinder'
     bl_label = "Cylinder"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        _create_mamoko_object(self, context, _create_cylinder_mesh)
+        _create_pogona_object(self, context, _create_cylinder_mesh)
         obj = context.active_object
-        obj.mamoko_shape = 'CYLINDER'
+        obj.pogona_shape = 'CYLINDER'
         return {'FINISHED'}
 
 
-class MaMoKoAddSphere(bpy.types.Operator):
+class PogonaAddSphere(bpy.types.Operator):
     """A sphere with origin at the center."""
-    bl_idname = 'mamoko.add_sphere'
+    bl_idname = 'pogona.add_sphere'
     bl_label = "Sphere"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        _create_mamoko_object(self, context, _create_sphere_mesh)
+        _create_pogona_object(self, context, _create_sphere_mesh)
         obj = context.active_object
-        obj.mamoko_shape = 'SPHERE'
+        obj.pogona_shape = 'SPHERE'
         return {'FINISHED'}
 
 
-class MaMoKoAddPoint(bpy.types.Operator):
+class PogonaAddPoint(bpy.types.Operator):
     """A simple point shape."""
-    bl_idname = 'mamoko.add_point'
+    bl_idname = 'pogona.add_point'
     bl_label = "Point"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        _create_mamoko_object(self, context, _create_cross_mesh)
+        _create_pogona_object(self, context, _create_cross_mesh)
         obj = context.active_object
-        obj.mamoko_shape = 'POINT'
+        obj.pogona_shape = 'POINT'
         return {'FINISHED'}
 
 
-class MaMoKoAddMoleculesVisualization(bpy.types.Operator):
+class PogonaAddMoleculesVisualization(bpy.types.Operator):
     """Periodically load molecule position CSVs for visualization"""
-    bl_idname = 'mamoko.add_moleculesvis'
+    bl_idname = 'pogona.add_moleculesvis'
     bl_label = "Molecules Visualization"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        # Not using _create_mamoko_object,
+        # Not using _create_pogona_object,
         # as this is just for visualization and is not supposed to be
-        # exportable to be used in the MaMoKo simulator.
-        mesh = bpy.data.meshes.new(f"MaMoKo {self.bl_label}")
+        # exportable to be used in the Pogona simulator.
+        mesh = bpy.data.meshes.new(f"Pogona {self.bl_label}")
         bm = bmesh.new()
         # Create initial placeholder mesh.
         # The actual mesh will be vertices loaded from CSVs for every frame.
@@ -219,6 +219,6 @@ class MaMoKoAddMoleculesVisualization(bpy.types.Operator):
 
         # Mark this object so we can later check whether to enable
         # relevant UI elements or not:
-        obj['mamoko_molecule_visualization_flag'] = True
+        obj['pogona_molecule_visualization_flag'] = True
 
         return {'FINISHED'}
