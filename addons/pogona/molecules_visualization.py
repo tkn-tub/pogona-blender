@@ -88,6 +88,7 @@ def _lock_ui_during_render(scene):
     to avoid multi-threading issues.
 
     This function is equivalent to checking Render -> Lock Interface.
+    # TODO: still necessary after that one bug fix?
     """
     bpy.context.scene.render.use_lock_interface = True
 
