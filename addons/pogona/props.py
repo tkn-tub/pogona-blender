@@ -71,6 +71,10 @@ def _molecule_positions_path_update_callback(self, context):
     # Adjust minimum and maximum step
     obj = context.active_object
     path = bpy.path.abspath(obj.pogona_molecule_positions_path)
+    # bpy.path.abspath may still produce paths like
+    # `/home/user/path/to/blendfile/../../../selected-folder/`
+    # Can be resolved with os.path.abspath:
+    path = os.path.abspath(path)
     steps = []
     try:
         for filename in os.listdir(path):

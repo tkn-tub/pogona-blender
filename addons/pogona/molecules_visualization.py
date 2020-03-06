@@ -48,6 +48,10 @@ def _update_all_molecule_visualizations(scene, depsgraph):
             obj.pogona_molecule_positions_path,
             f'positions.csv.{obj_eval.pogona_molecule_positions_step}'
         ))
+        # bpy.path.abspath may still produce paths like
+        # `/home/user/path/to/blendfile/../../../selected.file`
+        # Can be resolved with os.path.abspath:
+        filename = os.path.abspath(filename)
         try:
             with open(filename, 'r') as csv_file:
                 reader = csv.DictReader(csv_file)
