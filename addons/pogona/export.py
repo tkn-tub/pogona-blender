@@ -18,6 +18,7 @@
 # along with Pogona.  If not, see <https://www.gnu.org/licenses/>.import bpy
 
 from bpy_extras.io_utils import ExportHelper
+import bpy
 import yaml
 from typing import Dict
 
