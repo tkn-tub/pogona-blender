@@ -107,6 +107,7 @@ def menu_func(self, context):
 classes = (
     props.PogonaTypeProperty,
     props.PogonaRepresentationProperty,
+    props.PogonaVisAttributesProperty,
     ops.PogonaRepresentationShapeUpdate,
     ops.PogonaRepresentationScaleUpdate,
     ops.PogonaAddCube,
@@ -120,6 +121,9 @@ classes = (
     export.PogonaExporter,
     panel.PogonaPanel,
     panel.PogonaMoleculesVisualizationPanel,
+    panel.POGONA_UL_ParticleAttrUIList,
+    panel.LIST_OT_NewPogonaParticleAttr,
+    panel.LIST_OT_DeletePogonaParticleAttr,
 )
 
 

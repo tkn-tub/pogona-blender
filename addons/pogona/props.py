@@ -48,6 +48,36 @@ class PogonaTypeProperty(bpy.types.PropertyGroup):
             else self.pogona_type_custom
         )
 
+_attr_types_enum=(
+    # Must correspond to those in bpy.types.AttributeGroup.new()
+    ('INT', "Integer", "Integer values"),
+    ('FLOAT', "Float", "Floating point values"),
+    # ('STRING', "String", "String values"),
+    # …except for this special case:
+    ('STRING_HASH', "Hashed String",
+        "Integers from strings (tip: use modulo"),
+    ('FLOAT_VECTOR', "Vector",
+        "Floating point vectors "
+        "(attribute name will be extended with '_x', '_y', and '_z')"),
+)
+
+class PogonaVisAttributesProperty(bpy.types.PropertyGroup):
+    """
+    A property for defining which additional attributes to read from particle
+    position CSVs for use with Blender's Geometry Nodes.
+    """
+
+    pogona_particle_attr: bpy.props.StringProperty(
+        name="Particle Attribute",
+        default="",
+    )
+
+    pogona_particle_attr_type: bpy.props.EnumProperty(
+        name="Attribute Type",
+        items=_attr_types_enum,
+        default='FLOAT',
+    )
+
 
 _shape_items_default = (
     ('NONE', "NONE", "Use this for any Pogona Object that has a (custom) "
@@ -198,4 +228,17 @@ def add_custom_properties_to_object_class():
                     "`positions.csv.<N>` file.",
         options={'ANIMATABLE'},
         update=_molecule_positions_time_update_callback,
+    )
+    bpy.types.Object.pogona_molecule_attributes = bpy.props.CollectionProperty(
+        type=PogonaVisAttributesProperty,
+        name="Particle Attributes",
+        description="If the particle position CSVs contain additional "
+                    "columns for each particle, these columns can be "
+                    "imported as attributes for Geometry Nodes.",
+    )
+    bpy.types.Object.pogona_molecule_attributes_selected_index = (
+        bpy.props.IntProperty(
+            name="Index for pogona_molecule_attributes",
+            default=0,
+        )
     )

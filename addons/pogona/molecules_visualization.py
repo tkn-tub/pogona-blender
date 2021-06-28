@@ -43,6 +43,17 @@ def _update_all_molecule_visualizations(scene, depsgraph):
 
         mesh = bpy.data.meshes.new(obj.name)
         verts = []
+
+        # Data for Geometry Nodes attributes:
+        attr_data = {
+            item.pogona_particle_attr: []
+            for item in obj.pogona_molecule_attributes
+        }
+        attr_type_by_name = {
+            item.pogona_particle_attr: item.pogona_particle_attr_type
+            for item in obj.pogona_molecule_attributes
+        }
+
         scale = 1 / scene.unit_settings.scale_length
         filename = bpy.path.abspath(os.path.join(
             obj.pogona_molecule_positions_path,
@@ -61,6 +72,35 @@ def _update_all_molecule_visualizations(scene, depsgraph):
                         float(row['y']) * scale,
                         float(row['z']) * scale
                     )))
+
+                    for attr_name, attr_type in attr_type_by_name.items():
+                        if attr_name not in row:
+                            raise ValueError(
+                                f"Particle positions file {filename} "
+                                f"has no column(s) for {attr_name}."
+                            )
+                        if attr_type == 'INT':
+                            attr_data[attr_name].append(
+                                int(row[attr_name])
+                            )
+                        elif attr_type == 'FLOAT':
+                            attr_data[attr_name].append(
+                                float(row[attr_name])
+                            )
+                        elif attr_type == 'STRING':
+                            attr_data[attr_name].append(row[attr_name])
+                        elif attr_type == 'STRING_HASH':
+                            attr_data[attr_name].append(
+                                hash(row[attr_name])
+                            )
+                        elif attr_type == 'FLOAT_VECTOR':
+                            vec = (
+                                float(row[attr_name + '_x']),
+                                float(row[attr_name + '_y']),
+                                float(row[attr_name + '_z']),
+                            )
+                            attr_data[attr_name].append(vec)
+
         except OSError as e:
             raise Warning(
                 f"Could not open file '{filename}'. "
@@ -73,9 +113,21 @@ def _update_all_molecule_visualizations(scene, depsgraph):
         if len(old_mesh.materials) > 0:
             tmp_material = old_mesh.materials[0]
             mesh.materials.append(tmp_material)
+
         mesh.update()
         obj.data = mesh
         util.delete_mesh(old_mesh)
+
+        for attr_name, attr_type in attr_type_by_name.items():
+            obj.data.attributes.new(
+                name=attr_name,
+                type=attr_type if attr_type != 'STRING_HASH' else 'INT',
+                domain='POINT'
+            )
+            obj.data.attributes[attr_name].data.foreach_set(
+                'vector' if attr_type == 'FLOAT_VECTOR' else 'value',
+                attr_data[attr_name],
+            )
 
         obj['_pogona_molecule_position_previous_step'] = (
             obj_eval.pogona_molecule_positions_step)
