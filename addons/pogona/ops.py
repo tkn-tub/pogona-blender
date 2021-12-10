@@ -50,8 +50,8 @@ def _create_cylinder_mesh(context, mesh, bm):
         bm,
         cap_ends=True,  # close ends
         segments=32,
-        diameter1=0.5,  # actually radius, apparently
-        diameter2=0.5,  # actually radius, apparently
+        radius1=0.5,
+        radius2=0.5,
         depth=1,
         matrix=mathutils.Matrix.Identity(4),
         calc_uvs=True
